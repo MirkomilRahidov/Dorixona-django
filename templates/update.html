@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dorini Yangilash</title>
+</head>
+<body>
+
+    <h2>{{ medicine.name }} dorisini yangilash</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            <br>
+        {% endfor %}
+        <button type="submit">Saqlash</button>
+    </form>
+
+    <a href="{% url 'details' medicine.id %}">Bekor qilish</a>
+
+</body>
+</html>

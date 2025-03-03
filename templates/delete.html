@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dorini O‘chirish</title>
+</head>
+<body>
+
+    <h2>"{{ medicine.name }}" dorisini o‘chirishga ishonchingiz komilmi?</h2>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="confirm">Ha, o‘chirish</button>
+        <a href="{% url 'details' medicine.id %}">Yo‘q, bekor qilish</a>
+    </form>
+
+</body>
+</html>
