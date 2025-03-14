@@ -49,6 +49,6 @@ class MedicineCreate(View):
         form = MedicineForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('home')  # Yangi dori qo‘shilgandan keyin asosiy sahifaga qaytadi
+            return redirect('home') 
         return render(request, 'create.html', {'form': form})
     
