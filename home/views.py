@@ -1,8 +1,12 @@
 from django.shortcuts import render, get_object_or_404,redirect
 from django.views.generic import ListView,DetailView,CreateView,UpdateView,DeleteView,View
+from rest_framework.response import Response
+from rest_framework import status
 from django.urls import reverse_lazy
 from .models import Medicine
 from .forms import MedicineForm
+from rest_framework.generics import ListAPIView,CreateAPIView,UpdateAPIView,DestroyAPIView
+from .serializers import MedicineSerializer
 class MeidicineList(View):
     def get(self, request):
         medicine = Medicine.objects.all()
@@ -51,4 +55,20 @@ class MedicineCreate(View):
             form.save()
             return redirect('home') 
         return render(request, 'create.html', {'form': form})
-    
+class  MedicineApiList(ListAPIView):
+    queryset =Medicine.objects.all()
+    serializer_class = MedicineSerializer
+class MedecineApiCreate(CreateAPIView):
+    queryset = Medicine.objects.all()
+    serializer_class = MedicineSerializer 
+
+
+class MedicineApiDelete(DestroyAPIView):
+    queryset = Medicine.objects.all()
+    serializer_class = MedicineSerializer
+    lookup_field = 'pk'
+
+class MedicineApiUpdate(UpdateAPIView):
+    queryset = Medicine.objects.all()
+    serializer_class = MedicineSerializer
+    lookup_field = 'pk'
