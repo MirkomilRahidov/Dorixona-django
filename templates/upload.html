@@ -4,46 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rasm yuklash</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #f0f9ff, #cbebff);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 50%;
+        }
+        h2 {
+            text-align: center;
+            color: #007acc;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005fa3;
+        }
+    </style>
 </head>
 <body>
-
-    <h2>Dorilarni kiritish</h2>
-    
-    <form action="{% url 'medicine-create' %}" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
+    <div class="container">
+        <h2>Dorilarni kiritish</h2>
         
-        <label for="name">Nomi:</label>
-        <input type="text" name="name" required><br><br>
+        <form action="{% url 'medicine-create' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <label for="name">Nomi:</label>
+            <input type="text" name="name" required><br><br>
 
-        <label for="brand">Brendi:</label>
-        <input type="text" name="brand" required><br><br>
+            <label for="brand">Brendi:</label>
+            <input type="text" name="brand" required><br><br>
 
-        <label for="price">Narxi:</label>
-        <input type="number" step="0.01" name="price" required><br><br>
+            <label for="price">Narxi:</label>
+            <input type="number" step="0.01" name="price" required><br><br>
 
-        <label for="expiration_date">Yaroqlilik muddati:</label>
-        <input type="date" name="expiration_date" required><br><br>
+            <label for="expiration_date">Yaroqlilik muddati:</label>
+            <input type="date" name="expiration_date" required><br><br>
 
-        <label for="dosage">Doza:</label>
-        <input type="number" name="dosage" required><br><br>
+            <label for="dosage">Doza:</label>
+            <input type="number" name="dosage" required><br><br>
 
-        <label for="quantity">Miqdor:</label>
-        <input type="number" name="quantity" required><br><br>
+            <label for="quantity">Miqdor:</label>
+            <input type="number" name="quantity" required><br><br>
 
-        <label for="usage_instructions">Qo‘llash bo‘yicha ko‘rsatma:</label>
-        <textarea name="usage_instructions" required></textarea><br><br>
+            <label for="usage_instructions">Qo‘llash bo‘yicha ko‘rsatma:</label>
+            <textarea name="usage_instructions" required></textarea><br><br>
 
-        <label for="side_effects">Nojo‘ya ta’sirlar:</label>
-        <textarea name="side_effects" required></textarea><br><br>
+            <label for="side_effects">Nojo‘ya ta’sirlar:</label>
+            <textarea name="side_effects" required></textarea><br><br>
 
-        <label for="storage_conditions">Saqlash sharoiti:</label>
-        <textarea name="storage_conditions" required></textarea><br><br>
+            <label for="storage_conditions">Saqlash sharoiti:</label>
+            <textarea name="storage_conditions" required></textarea><br><br>
 
-        <label for="image">Rasm yuklash:</label>
-        <input type="file" name="image" accept="image/*" required><br><br>
+            <label for="image">Rasm yuklash:</label>
+            <input type="file" name="image" accept="image/*" required><br><br>
 
-        <button type="submit">Yuborish</button>
-    </form>
-
+            <button type="submit">Yuborish</button>
+        </form>
+    </div>
 </body>
 </html>
