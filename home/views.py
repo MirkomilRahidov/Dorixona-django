@@ -8,6 +8,7 @@ from .forms import MedicineForm
 from rest_framework.generics import ListAPIView,CreateAPIView,UpdateAPIView,DestroyAPIView,RetrieveDestroyAPIView,ListCreateAPIView
 from .serializers import MedicineSerializer
 from rest_framework.views import APIView
+from rest_framework import viewsets
 # class MeidicineList(View):
 #     def get(self, request):
 #         medicine = Medicine.objects.all()
@@ -88,12 +89,15 @@ from rest_framework.views import APIView
 class UploadMedicineView(View):
     def get(self, request):
         return render(request, "upload.html") 
-class MedicineListAPIView(APIView):
-    def get(self, request):
-        medicines = Medicine.objects.all()
-        serializer = MedicineSerializer(medicines, many=True)
-        rps = {"data": serializer.data, "status": status.HTTP_200_OK}
-        return Response(rps)
+
+class MedicineViewSet(viewsets.ReadOnlyModelViewSet):  
+    queryset = Medicine.objects.all()
+    serializer_class = MedicineSerializer
+
+    def list(self, request, *args, **kwargs):
+        medicines = self.get_queryset()
+        serializer = self.get_serializer(medicines, many=True)
+        return Response({"data": serializer.data, "status": status.HTTP_200_OK})
 
 class MedicineCreateAPIView(APIView):
     def post(self, request, format=None):
