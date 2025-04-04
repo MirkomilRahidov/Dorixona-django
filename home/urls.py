@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import MedicineDeleteAPIView,MedicineUpdateAPIView,MedicineViewSet,MedicineCreateAPIView,UploadMedicineView ,MeidicineList ,MedicineDetails,MedicineDelete,MedicineUpdate,MedicineCreate #,MedecineApiCreate,MedicineApiDelete,MedicineApiUpdate,MedicineListCreate,MedicineRetrieveDestroy
+from .views import MedicineDeleteAPIView,MedicineUpdateAPIView,MedicineViewSet,MedicineCreateAPIView,UploadMedicineView ,MeidicineList ,MedicineDetails,MedicineDelete,MedicineUpdate,MedicineCreate,protected_view #,MedecineApiCreate,MedicineApiDelete,MedicineApiUpdate,MedicineListCreate,MedicineRetrieveDestroy,
+
 router = DefaultRouter()
 router.register(r'medicines', MedicineViewSet, basename='medicine')
 urlpatterns=[
@@ -20,6 +21,7 @@ urlpatterns=[
     path("api-update/<int:pk>/", MedicineUpdateAPIView.as_view(), name="medicine-update"),
     path('', include(router.urls)),
     path('api-create/', MedicineCreateAPIView.as_view(), name='medicine-create'),
+    path('protected/', protected_view, name='protected'),
     
     
 ]   

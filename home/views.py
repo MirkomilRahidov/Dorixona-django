@@ -9,6 +9,16 @@ from rest_framework.generics import ListAPIView,CreateAPIView,UpdateAPIView,Dest
 from .serializers import MedicineSerializer
 from rest_framework.views import APIView
 from rest_framework import viewsets
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def protected_view(request):
+    return Response({"message": f"Salom, {request.user.username}! Bu maxfiy sahifa."})
 class MeidicineList(View):
     def get(self, request):
         medicine = Medicine.objects.all()
@@ -123,3 +133,4 @@ class MedicineUpdateAPIView(APIView):
             return Response(rps)
         rps = {"data": serializer.errors, "status": status.HTTP_400_BAD_REQUEST}
         return Response(rps)
+
