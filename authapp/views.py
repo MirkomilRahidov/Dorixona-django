@@ -1,3 +1,7 @@
+import datetime
+from ftplib import FTP
+import random
+import uuid
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
@@ -14,11 +18,7 @@ class RegisterView(APIView):
         phone = data.get('phone')
         password = data.get('password')
 
-        if len(phone) > 9:
-            raise ValidationError("Telefon raqami 9 raqamdan ko'p bo'lmasligi kerak.")
         
-        if User.objects.filter(profile__phone=phone).exists(): 
-            raise ValidationError("Ushbu telefon raqami allaqachon ro'yxatdan o'tgan.")
 
         if len(password) < 6:
             raise ValidationError("Parol kamida 6 ta belgidan iborat bo'lishi kerak.")
@@ -99,4 +99,71 @@ class Profile(APIView):
         return Response({
             "message": "Foydalanuvchi muvaffaqiyatli o'chirildi"
         }, status=204)
+
+
+class Authone(APIView):
+    
+    def post(self,request):
+        data = request.data
+        phone = data.get('phone')
+        if data['phone']:
+            return Response({
+                "error":"Togri malumot kiritilmagan"
+            }) 
+            
+        if len(phone) > 9 or not isinstance(phone,int):
+            raise ValidationError("Telefon raqami notogri kiritilgan.")
+        
+        if User.objects.filter(profile__phone=phone).exists(): 
+            raise ValidationError("Ushbu telefon raqami allaqachon ro'yxatdan o'tgan.")
+        code = ''.join([str(random.randint(1,999999))[-1] for _ in range(6)])
+        key= uuid.uuid4().__str__()+code
+        otp = OTP.objects.create(phone=phone,key=key)
+        # int_= string.digits
+        # str_=string.ascii_letters
+        return Response({
+            "otp":code,
+            'token':key
+        })
+class AuthTwo(APIView):
+    def post(self,reques):
+        data = reques.data
+        if not data['code'] or not data['key']:
+            return Response({
+                "error":"Siz toliq malumot kiritmadingiz"
+            })
+        otp = OTP.objects.filter(key=data['key']).first()
+        
+        if not otp:
+            return Response({
+                "Error":"xato key" 
+            })
+        now = datetime.datetime(datetime.timezone.utc)
+        if (now-otp.created).total_seconds()>=180:
+            otp.is_expire =True
+            otp.save()
+            return Response({
+                "error":"key yaroqsiz"
+            })
+            
+        if otp.is_conf:
+            return Response({
+                "Error":"Eskirgan key"
+            })
+        
+        if data['code'] != data ['key'][-4]:
+            otp.tried+=1
+            otp.save()
+            return Response({
+                "Error":"Siz xato kod kiritdingiz"
+            })
+        
+        otp.is_conf=True
+        otp.save()
+        user = CustomUser.objects.filter(phone=otp.phone).first()
+        
+        
+        return Response({
+            "Registered":True is not None
+        })
         
