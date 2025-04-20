@@ -39,7 +39,7 @@ class CustomUser(AbstractBaseUser):
         }
         
         
-class AuthOne(models.Model):
+class OTP(models.Model):
     phone= models.CharField(max_length=12)
     key = models.CharField(max_length=100)
     

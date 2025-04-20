@@ -7,11 +7,12 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from django.contrib.auth.models import User
 import re
-from .models import CustomUser
+from .models import CustomUser,OTP
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+
 class RegisterView(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
