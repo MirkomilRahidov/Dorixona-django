@@ -12,7 +12,12 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
-
+from methodism import METHODISM
+from authapp import methods
+class Main(METHODISM):
+    file = methods
+    token_key = 'Token'
+    not_auth_methods=[]
 class RegisterView(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
