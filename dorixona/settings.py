@@ -152,4 +152,11 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [str(BASE_DIR.joinpath('static'))]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+
 APP_NAME='drf translate'
+EMAIL_BACKEN ="django.core.email.backends.stap.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_USE_TLS= True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'rashidovm1210@gmail.com'
+EMAIL_HOST_PASSWORD='XXEHEB'

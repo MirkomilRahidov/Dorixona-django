@@ -5,8 +5,11 @@ import uuid
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from django.contrib.auth.models import User
+from django.utils import timezone
+# from django.contrib.auth.models import User
 import re
+from django.contrib.auth import get_user_model
+from authapp.methods.helper import is_email, is_phone, send_email_async, generate_otp
 from .models import CustomUser,OTP
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
@@ -24,28 +27,24 @@ class RegisterView(APIView):
         phone = data.get('phone')
         password = data.get('password')
 
-        
+        if not phone or not password:
+            raise ValidationError("Telefon va parol majburiy.")
 
         if len(password) < 6:
             raise ValidationError("Parol kamida 6 ta belgidan iborat bo'lishi kerak.")
         
         if not re.search(r'[A-Z]', password):
-            raise ValidationError("Parol kamida bitta katta harfni o'z ichiga olishi kerak.")
-        user_data = {
-            'phone': phone,
-            'password': password,
-        }
-        user = CustomUser.objects.filter(phone=data[phone]).first()
+            raise ValidationError("Parol kamida bitta katta harf bo'lishi kerak.")
+
+        if CustomUser.objects.filter(phone=phone).exists():
+            raise ValidationError("Bu raqam allaqachon ro'yxatdan o'tgan.")
+
+        user = CustomUser.objects.create_user(phone=phone, password=password)
         token = Token.objects.create(user=user)
-        if not authenticate(request, phone=data['phone'],password=data['password']):
-            return Response({
-                "Error":"error"
-            })
-            
-            
+
         return Response({
-            'message': 'Ro\'yxatdan o\'tish ma\'lumotlari to\'g\'ri.',
-            "Token":token
+            'message': "Ro'yxatdan o'tish ma'lumotlari to'g'ri.",
+            'Token': token.key
         })
 class LogOutView(APIView):
     permission_classes=IsAuthenticated
@@ -106,70 +105,69 @@ class Profile(APIView):
             "message": "Foydalanuvchi muvaffaqiyatli o'chirildi"
         }, status=204)
 
+User = get_user_model()
 
 class Authone(APIView):
-    
-    def post(self,request):
+    def post(self, request):
         data = request.data
-        phone = data.get('phone')
-        if data['phone']:
+        contact = data.get('contact')  
+
+        if not contact:
+            return Response({"error": "Telefon raqami yoki email kiritilmadi"}, status=400)
+
+        if is_email(contact):
+            if User.objects.filter(email=contact).exists():
+                raise ValidationError("Bu email allaqachon ro'yxatdan o'tgan.")
+
+            key = f"{uuid.uuid4()}"
+            send_email_async(contact)
             return Response({
-                "error":"Togri malumot kiritilmagan"
-            }) 
-            
-        if len(phone) > 9 or not isinstance(phone,int):
-            raise ValidationError("Telefon raqami notogri kiritilgan.")
-        
-        if User.objects.filter(profile__phone=phone).exists(): 
-            raise ValidationError("Ushbu telefon raqami allaqachon ro'yxatdan o'tgan.")
-        code = ''.join([str(random.randint(1,999999))[-1] for _ in range(6)])
-        key= uuid.uuid4().__str__()+code
-        otp = OTP.objects.create(phone=phone,key=key)
-        # int_= string.digits
-        # str_=string.ascii_letters
-        return Response({
-            "otp":code,
-            'token':key
-        })
+                "message": "Tasdiqlash email yuborildi",
+                "token": key
+            })
+
+        elif is_phone(contact):
+            if User.objects.filter(phone=contact).exists():
+                raise ValidationError("Bu raqam allaqachon ro'yxatdan o'tgan.")
+
+            code, key = generate_otp(contact)
+            print(f"Kod: {code}") 
+
+            return Response({
+                "otp": code,
+                "token": key
+            })
+
+        else:
+            return Response({"error": "Noto‘g‘ri formatdagi telefon yoki email"}, status=400)
+
 class AuthTwo(APIView):
-    def post(self,reques):
-        data = reques.data
-        if not data['code'] or not data['key']:
-            return Response({
-                "error":"Siz toliq malumot kiritmadingiz"
-            })
+    def post(self, request):
+        data = request.data
+        if not data.get('code') or not data.get('key'):
+            return Response({ "error": "Siz to‘liq ma’lumot kiritmadingiz" })
+
         otp = OTP.objects.filter(key=data['key']).first()
-        
         if not otp:
-            return Response({
-                "Error":"xato key" 
-            })
-        now = datetime.datetime(datetime.timezone.utc)
-        if (now-otp.created).total_seconds()>=180:
-            otp.is_expire =True
+            return Response({ "error": "Noto‘g‘ri key" })
+
+        # hozirgi vaqtni olishda parantezni unutmaslik!
+        now = timezone.now()
+        if (now - otp.created).total_seconds() >= 180:
+            otp.is_expire = True
             otp.save()
-            return Response({
-                "error":"key yaroqsiz"
-            })
-            
+            return Response({ "error": "Key yaroqsiz (vaqti o‘tdi)" })
+
         if otp.is_conf:
-            return Response({
-                "Error":"Eskirgan key"
-            })
-        
-        if data['code'] != data ['key'][-4]:
-            otp.tried+=1
+            return Response({ "error": "Ushbu kod allaqachon ishlatilgan" })
+
+        if data['code'] != otp.key[-4:]:
+            otp.tried += 1
             otp.save()
-            return Response({
-                "Error":"Siz xato kod kiritdingiz"
-            })
-        
-        otp.is_conf=True
+            return Response({ "error": "Siz xato kod kiritdingiz" })
+
+        otp.is_confirmed = True
         otp.save()
+
         user = CustomUser.objects.filter(phone=otp.phone).first()
-        
-        
-        return Response({
-            "Registered":True is not None
-        })
-        
+        return Response({ "registered": True })

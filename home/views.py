@@ -3,7 +3,7 @@ from django.views.generic import ListView,DetailView,CreateView,UpdateView,Delet
 from rest_framework.response import Response
 from rest_framework import status
 from django.urls import reverse_lazy
-from .models import Medicine
+from .model import Medicine
 from .forms import MedicineForm
 from rest_framework.generics import ListAPIView,CreateAPIView,UpdateAPIView,DestroyAPIView,RetrieveDestroyAPIView,ListCreateAPIView
 from .serializers import MedicineSerializer
