@@ -151,7 +151,6 @@ class AuthTwo(APIView):
         if not otp:
             return Response({ "error": "Noto‘g‘ri key" })
 
-        # hozirgi vaqtni olishda parantezni unutmaslik!
         now = timezone.now()
         if (now - otp.created).total_seconds() >= 180:
             otp.is_expire = True
